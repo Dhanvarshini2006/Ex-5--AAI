@@ -17,59 +17,51 @@ Step 6: Plot the true and estimated positions.<BR>
 ```
 import numpy as np
 import matplotlib.pyplot as plt
-
-class KalmanFilter:
-  def __init__ (self,F,H,Q,R,x0,P0):
-    self.F = F # state transition model
-    self.H = H # observation model
-    self.Q = Q # process noise covariance
-    self.R = R # measurement noise covariance
-    self.x = x0 # initial state extimate
-    self.P = P0 # initial error covariance
-  
-  def predict(self): # predict the next state
-    self.x = np.dot(self.F, self.x)
-    self.P = np.dot(np.dot(self.F, self.P),self.F.T) + self.Q
-  
-  def update(self, z): # update the state estimate based on the measurement z
-    y = z - np.dot(self.H, self.x)
-    S = np.dot(np.dot(self.H, self.P),self.H.T) + self.R
-    K = np.dot(np.dot(self.P, self.H.T), np.linalg.inv(S))
-    self.x = self.x + np.dot(K, y)
-    
-dt = 0.1 # time step
-F = np.array([[1, dt], [0, 1]]) # state transition model
-H = np.array([[1, 0]]) # observation model
-Q = np.diag([0.1, 0.1]) # process noise covariance
-R = np.array([[1]]) # measurement noise covariance
-x0 = np.array([0, 0]) # initial state estimate
-P0 = np.diag([1, 1]) # initial error covariance
-
-
-kf = KalmanFilter(F,H,Q,R,x0,P0)
-
-true_states=[]
+class KalmanFi1ter:
+    def __init__(self, F, H, Q, R, x0, P0):
+        self.F=F
+        self.H=H
+        self.Q=Q
+        self.R=R
+        self.x=x0
+        self.P=P0
+    def predict (self):
+        self.x=self.F @ self.x
+        self.P=self.F@self. P@self.F.T +self.Q
+    def update(self,z):
+        y=z-self.H@self.x
+        s=self.H@self.P@self.H.T+self.R
+        K=self.P@self.H.T@np.linalg.inv(s)
+        self.x=self.x+K@y
+        self.P=np.dot(np.eye(self.F.shape[0])-np.dot(K,self.H),self.P)
+dt=0.1
+F=np.array([[1,dt],[0,1]])
+H=np.array([[1,0]])
+Q=np.diag([0.1,0.1])
+R=np.array([[1]])
+x0=np.array([0,0])
+P0=np.diag([1,1])
+kf=KalmanFi1ter(F,H,Q,R,x0,P0)
+truestates=[]
 measurements=[]
 for i in range(100):
-  true_states.append([i*dt, 1]) # assume constant velocity of 1m/s
-  measurements.append(i*dt + np.random.normal(scale=1)) # add measurement noise
-
-est_states = []
+    truestates.append([i*dt,1])
+    measurements.append(i*dt+np.random.normal(scale=1))
+est_states=[]
 for z in measurements:
     kf.predict()
     kf.update(np.array([z]))
     est_states.append(kf.x)
-
-plt.plot([s[0] for s in true_states], label='true')
-plt.plot([s[0] for s in est_states], label='estimate')
+plt.plot([s[0] for s in truestates],label="true")
+plt.plot(measurements,label="measurement")
+plt.plot([s[0] for s in est_states],label="Estimate")
 plt.legend()
 plt.show()
-
 ```
 
 <H3>Output:</H3>
+<img width="777" height="538" alt="image" src="https://github.com/user-attachments/assets/8179036a-6a7e-4c9c-b535-751791e0c39c" />
 
-<img width="541" height="382" alt="image" src="https://github.com/user-attachments/assets/b4596c3a-1d7c-4cb7-afdd-3709f2c8b4c3" />
 
 
 <H3>Results:</H3>
