@@ -17,50 +17,53 @@ Step 6: Plot the true and estimated positions.<BR>
 ```
 import numpy as np
 import matplotlib.pyplot as plt
-class KalmanFi1ter:
-    def __init__(self, F, H, Q, R, x0, P0):
+class KalmanFilter:
+    def __init__(self,F,H,Q,R,p0,x0):
         self.F=F
         self.H=H
         self.Q=Q
         self.R=R
-        self.x=x0
-        self.P=P0
-    def predict (self):
-        self.x=self.F @ self.x
-        self.P=self.F@self. P@self.F.T +self.Q
+        self.P=p0
+        self.X=x0
+    def predict(self):
+        self.X=self.F@self.X
+        self.P=self.F@self.P@self.F.T+self.Q
     def update(self,z):
-        y=z-self.H@self.x
-        s=self.H@self.P@self.H.T+self.R
+        y=z-self.H@self.X #y=z-HX
+        s=self.H@self.P@self.H.T+self.R #innovation covariance
         K=self.P@self.H.T@np.linalg.inv(s)
-        self.x=self.x+K@y
+        self.X=self.X+K@y
         self.P=np.dot(np.eye(self.F.shape[0])-np.dot(K,self.H),self.P)
 dt=0.1
 F=np.array([[1,dt],[0,1]])
 H=np.array([[1,0]])
 Q=np.diag([0.1,0.1])
 R=np.array([[1]])
+p0=np.diag([1,1])
 x0=np.array([0,0])
-P0=np.diag([1,1])
-kf=KalmanFi1ter(F,H,Q,R,x0,P0)
 truestates=[]
 measurements=[]
+estimatedstates=[]
+kf=KalmanFilter(F,H,Q,R,p0,x0)
 for i in range(100):
     truestates.append([i*dt,1])
     measurements.append(i*dt+np.random.normal(scale=1))
-est_states=[]
 for z in measurements:
     kf.predict()
     kf.update(np.array([z]))
-    est_states.append(kf.x)
-plt.plot([s[0] for s in truestates],label="true")
-plt.plot(measurements,label="measurement")
-plt.plot([s[0] for s in est_states],label="Estimate")
+    estimatedstates.append(kf.X)
+plt.plot([s[0] for s in truestates],label="True States")
+plt.plot(measurements,label="Measurements")
+plt.plot([s[0] for s in estimatedstates],label="Estimated States")
 plt.legend()
 plt.show()
+
 ```
 
 <H3>Output:</H3>
-<img width="777" height="538" alt="image" src="https://github.com/user-attachments/assets/8179036a-6a7e-4c9c-b535-751791e0c39c" />
+
+<img width="753" height="526" alt="image" src="https://github.com/user-attachments/assets/f2ee41d0-2a8a-4b49-9ada-ec70cecfd45d" />
+
 
 
 
